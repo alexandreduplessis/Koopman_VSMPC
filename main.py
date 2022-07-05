@@ -5,6 +5,8 @@ import torch
 import torchvision
 from torch import nn
 
+from autoencoder import Autoencoder
+
 def measure():# this is a simulator function, which basically returns an array of the image observed
     return None
 
@@ -67,32 +69,6 @@ def next_funct(goal_z, current_z):
     vlambda = 1.# arbitraire
     return (1 - vlambda)*current_z + vlambda*goal_z
 
-
-class autoencoder(nn.Module): #fortement aléatoire
-    def __init__(self):
-        super(autoencoder, self).__init__()
-        self.encoder = nn.Sequential(
-            nn.Linear(28 * 28, 128),
-            nn.ReLU(True),
-            nn.Linear(128, 64),
-            nn.ReLU(True), nn.Linear(64, 12), nn.ReLU(True), nn.Linear(12, 3))
-        self.decoder = nn.Sequential(
-            nn.Linear(3, 12),
-            nn.ReLU(True),
-            nn.Linear(12, 64),
-            nn.ReLU(True),
-            nn.Linear(64, 128),
-            nn.ReLU(True), nn.Linear(128, 28 * 28), nn.Tanh())
-
-    def encode(self, x):
-        return self.encoder(x)
-    def decode(self, x):
-        return self.decoder(x)
-    
-    def forward(self, x):# not useful
-        x = self.encoder(x)
-        x = self.decoder(x)
-        return x
 
 learning_rate = 1e-4
 model = autoencoder().cuda()
