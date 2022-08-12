@@ -15,7 +15,7 @@ Here are the different options available.
 
 **Hyper-parameters**
 |Short |Long               |Default                  |Description                |
-|------|------------------|-------------------------|---------------------------|
+|------|------------------|:-------------------------:|---------------------------|
 |``-h``|``--help``         |                         |Show help                  |
 |``-e`` |       ``--epochs``            |   1000       |Number of epochs, constant over steps         |
 |  ``-s``    |``--steps``      |             5            |Number of training data             |
@@ -28,7 +28,7 @@ Here are the different options available.
 **Learning parameters**
 
 |Short |Long               |Default                  |Description                |
-|------|------------------|-------------------------|---------------------------|
+|------|------------------|:-------------------------:|---------------------------|
 |``-T``|``--learning_horizon``         |      1000                   |Horizon of learning                  |
 |``-m`` |       ``--AB_horizon``            |   500       |Number of values used to compute A and B         |
 |  ``-lr``    |``--lr``      |             1e-3            |ADAM learning rate             |
@@ -38,7 +38,7 @@ Here are the different options available.
 
 **Environment parameters**
 |Short |Long               |Default                  |Description                |
-|------|------------------|-------------------------|---------------------------|
+|------|------------------|:-------------------------:|---------------------------|
 |``-d0``|``--init_pos``         |     random.uniform(-20., 20.)                 | Initial position                  |
 |``-dstar`` |       ``--goal_pos``            |  random.uniform(-20., 20.)     | Desired position        |
 |  ``-o``    |``--obs_dim``      |          1         | Dimension of observation space          |
@@ -48,5 +48,5 @@ Here are the different options available.
 **Random parameters**
 |------|------------------|-------------------------|---------------------------|
 |Short |Long               |Default                  |Description                |
-|------|------------------|-------------------------|---------------------------|
+|------|------------------|:-------------------------:|---------------------------|
 |``-seed``|``--seed``         |     ```None```              | Set seed or not               |
