@@ -37,8 +37,8 @@ Here are the different options available.
 |  ``-sh``    |``--secondary_horizon``   |0|Time horizon for dependancy             |
 
 **Environment parameters**
-|------|------------------|-------------------------|---------------------------|
 |Short |Long               |Default                  |Description                |
+|------|------------------|-------------------------|---------------------------|
 |``-d0``|``--init_pos``         |     random.uniform(-20., 20.)                 | Initial position                  |
 |``-dstar`` |       ``--goal_pos``            |  random.uniform(-20., 20.)     | Desired position        |
 |  ``-o``    |``--obs_dim``      |          1         | Dimension of observation space          |
