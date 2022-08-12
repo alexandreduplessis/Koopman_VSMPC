@@ -49,4 +49,4 @@ Here are the different options available.
 |------|------------------|-------------------------|---------------------------|
 |Short |Long               |Default                  |Description                |
 |------|------------------|:-------------------------:|---------------------------|
-|``-seed``|``--seed``         |     ```None```              | Set seed or not               |
+|``-seed``|``--seed``         |     None            | Set seed or not               |
