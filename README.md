@@ -46,7 +46,6 @@ Here are the different options available.
 
 
 **Random parameters**
-|------|------------------|-------------------------|---------------------------|
 |Short |Long               |Default                  |Description                |
 |------|------------------|:-------------------------:|---------------------------|
 |``-seed``|``--seed``         |     None            | Set seed or not               |
