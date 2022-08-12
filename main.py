@@ -38,8 +38,8 @@ def control(env, initial_position, goal_position, nb_steps, nb_epochs_list, hori
         model.parameters(), lr=learning_rate, weight_decay=1e-4)
     # scheduler = 0.
     scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda=lr_function)
-    scheduler = torch.optim.lr_scheduler.StepLR(
-        optimizer, step_size=100, gamma=0.5)
+    # scheduler = torch.optim.lr_scheduler.StepLR(
+    #     optimizer, step_size=100, gamma=0.5)
     # scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'min')
     # scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.9)
 

@@ -31,17 +31,36 @@ class Last_cumulated(): # m and T are switched here, to modify
     
     def __str__(self):
         return "{}".format(self.last_cumulated_list)
-    
+
 
 def lr_function(epoch):
-    if epoch < 10:
-        return 10.
+    if epoch < 500:
+        return 100.
     elif epoch < 200:
-        return 1.
+        return 50.
     elif epoch < 400:
-        return 0.5
+        return 10.
     else:
-        return 0.1
+        return 1.    
+
+# Works for 1D LSD
+# def lr_function(ep
+# #och):
+    # if epoch < 10:
+    #
+        # return 10.
+        #
+    # elif epoch < 
+    # #200:
+        # return 1.
+        #
+    # elif epoch < 4
+    # #00:
+        # r
+        # #eturn 0.5
+    # else:
+    #
+        # return 0.1
 
 
 def estimate(A, B, z, u, T, m, device):
