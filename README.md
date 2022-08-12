@@ -14,7 +14,6 @@ Project by Alexandre DUPLESSIS
 Here are the different options available.
 
 **Hyper-parameters**
-|------|------------------|-------------------------|---------------------------|
 |Short |Long               |Default                  |Description                |
 |------|------------------|-------------------------|---------------------------|
 |``-h``|``--help``         |                         |Show help                  |
