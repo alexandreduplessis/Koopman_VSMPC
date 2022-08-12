@@ -1,0 +1,7 @@
+container.sif
+__pycache__/
+.remi/
+notebooks/
+output/
+runs/
+Experiments*/
