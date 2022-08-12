@@ -8,7 +8,10 @@ Project by Alexandre DUPLESSIS
 
 ## Usage
 **Warning:** The code was tested in a devoted conda environment. To make the code work, delete first line of ```main.py```
-```python main.py```
+
+To launch code, use ```python main.py```.
+
+To visualize the loss and metrics, use ```tensorboard --logdir=runs```.
 
 ### Options
 Here are the different options available.
