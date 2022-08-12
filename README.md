@@ -23,12 +23,10 @@ Here are the different options available.
 |  ``-a``    |``--alpha``       |1. |Weight of auto_loss in loss                |
 |   ``-b``   |``--beta`` |1.                |Weight of pred_loss in loss             |
 |  ``-rho``    |``--regularization``   |1e4|ADAM weight decay              |
-|------|------------------|-------------------------|---------------------------|
 
 
 
 **Learning parameters**
-|------|------------------|-------------------------|---------------------------|
 
 |Short |Long               |Default                  |Description                |
 |------|------------------|-------------------------|---------------------------|
@@ -46,7 +44,6 @@ Here are the different options available.
 |``-dstar`` |       ``--goal_pos``            |  random.uniform(-20., 20.)     | Desired position        |
 |  ``-o``    |``--obs_dim``      |          1         | Dimension of observation space          |
 |  ``-c``    |``--control_dim``       | 1 |  Dimension of control space              |
-|------|------------------|-------------------------|---------------------------|
 
 
 **Random parameters**
@@ -54,4 +51,3 @@ Here are the different options available.
 |Short |Long               |Default                  |Description                |
 |------|------------------|-------------------------|---------------------------|
 |``-seed``|``--seed``         |     ```None```              | Set seed or not               |
-|------|------------------|-------------------------|---------------------------|
