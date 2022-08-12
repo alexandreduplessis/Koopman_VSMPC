@@ -1,4 +1,4 @@
-**Koopman Control of Dynamical systems for Visual Servoing**
+# Koopman Control of Dynamical systems for Visual Servoing
 Project by Alexandre DUPLESSIS
 
 ## Prerequisites
