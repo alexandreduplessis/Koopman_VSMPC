@@ -18,7 +18,6 @@ class Last_cumulated(): # m and T are switched here, to modify
     def before(self, nb=None):
         if nb == None:
             nb = self.T
-        # print("taille before :", nb)
         before_list = torch.stack([torch.cat([torch.tensor([self.last_cumulated_list[j+self.h-i]]) for i in range(self.h, -1, -1)], 0) for j in range(nb)], 0)
         return before_list
     

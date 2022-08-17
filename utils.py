@@ -2,12 +2,11 @@ import numpy as np
 import torch
 
 class Last_cumulated(): # m and T are switched here, to modify
-    def __init__(self, m, h, T, length, width=0):
+    def __init__(self, m, h, T, length, width=1):
         self.m = m
         self.h = h
         self.T = T
         self.last_cumulated_list = torch.zeros((m+h+1, length, width))
-        print("shape: {}".format(self.last_cumulated_list.shape))
         # self.last_cumulated_list = torch.tensor([[0.]*dimension]*(m+h+1))
     
     def append(self, x):
@@ -121,7 +120,7 @@ def find_AB(Z1, Z2, U1, c, n, T, rho, max_iter, device, tensorboard, abscisse):
     """
     Z1 = Z1.T
     Z2 = Z2.T
-    U1 = U1.T
+    U1 = U1.T.squeeze()
     first_line = torch.cat(
         [
             torch.eye(n).to(device),
@@ -178,13 +177,13 @@ def find_AB(Z1, Z2, U1, c, n, T, rho, max_iter, device, tensorboard, abscisse):
         new_diff = Z2 - A_estimate @ Z1 - B_estimate @ U1
         performance = new_diff.square().mean()
         tensorboard.add_scalar("Learning A,B", performance, i)
-        if performance <  0.5:
+        if performance <  10.:
             break
     print("Performance of learning of A and B :", performance)
     print("Theoretical performance of learning of A and B :", theoretical_diff)
     loss_fct = torch.nn.MSELoss()
     linearization_error = loss_fct(new_estimate[:n+c, ::] @ torch.linalg.pinv(new_estimate[:n+c, ::]), torch.eye(n+c).to(device))
-    print("B error :", linearization_error)
+    # print("B error :", linearization_error)
     return A_estimate, B_estimate, linearization_error
 
 
@@ -195,7 +194,7 @@ def auto_loss(model, d):
 
 def pred_loss(model, d, z_estimate, m):
     loss_fct = torch.nn.MSELoss()
-    return loss_fct(d[m+1:], model.decoded(torch.tensor(z_estimate.T))[:-1])
+    return loss_fct(d[m+1:], model.decoded(torch.tensor(z_estimate))[:-1])
 
 def odc_loss(model, d, z_estimate, m):
     return auto_loss(model, d, z_estimate, m) + pred_loss(model, d, z_estimate, m)

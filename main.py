@@ -25,7 +25,6 @@ def control(env, initial_position, goal_position, nb_steps, nb_epochs_list, hori
     save_value = []
     d = Last_cumulated(m=horizon, h=secondary_horizon, T=AB_horizon, length=obs_dim, width = obs_dim)
     # d.append(initial_position)
-    print("///", torch.from_numpy(env.current_state_matrix()).shape)
     d.append(torch.from_numpy(env.current_state_matrix()))
     u = Last_cumulated(m=horizon-1, h=0, T=AB_horizon, length=control_dim)
     # env.env_initialize(initial_position)
@@ -39,10 +38,13 @@ def control(env, initial_position, goal_position, nb_steps, nb_epochs_list, hori
         # print("Random control {} : {}".format(t, control))
 
     # print("First state :", state)
-    model = Autoencoder_Dense(dim_embed=embed_dim, dim_obs=obs_dim)
+    model = Autoencoder(args.embed_dim)
     model.to(device)
-    print(model.number_parameters())
+    print("====================")
+    print("Model:")
+    print("Number of learnable parameters:", model.number_parameters())
     print(model)
+    print("====================")
     optimizer = torch.optim.Adam(
         model.parameters(), lr=learning_rate, weight_decay=1e-4)
     # scheduler = 0.
@@ -60,9 +62,10 @@ def control(env, initial_position, goal_position, nb_steps, nb_epochs_list, hori
                                       AB_horizon, horizon, rho, model, optimizer, tb, i, device, alpha, beta, scheduler=scheduler, secondary_horizon=secondary_horizon)
         with torch.no_grad():
             # new_state = env.env_control(control)
-            new_state, reward, done, info = env.step({'abscisse': control[0], 'ordonnee': control[1], 'depth': control[2]})
+            control_env = control.detach().cpu().numpy()
+            print(control)
+            new_state, reward, done, info = env.step({'abscisse': control_env[0], 'ordonnee': control_env[1], 'depth': control_env[2]})
             env.render()
-            print(goal_position)
             print("Round {} : {}".format(i, reward))
             d.append(new_state)
             tb.add_scalar("Reward", reward, i)
@@ -87,18 +90,16 @@ if __name__ == "__main__":
     # hand_goal_pos = torch.tensor([i*1.+17. for i in range(args.obs_dim)]).to(device)
     # hand_goal_pos = torch.tensor([2. for i in range(args.obs_dim)]).to(device)
     # print("goal pos :", hand_goal_pos)
-    hand_init_pos = None
-    hand_goal_pos = None
     
-    env = VsEnv(length=100, width=100, max_steps=args.learning_horizon + args.secondary_horizon + args.steps)
+    env = VsEnv(length=args.obs_dim, width=args.obs_dim, max_steps=args.learning_horizon + args.secondary_horizon + args.steps)
     env.reset()
     
     # env = SimulationEnv(args.obs_dim)
 
     res, save_value = control(
         env=env,
-        initial_position=hand_init_pos,
-        goal_position=hand_goal_pos,
+        initial_position=torch.from_numpy(env.initial_matrix()).to(device),
+        goal_position=torch.from_numpy(env.goal_matrix()).to(device),
         nb_steps=args.steps,
         nb_epochs_list=[args.epochs]*(args.steps),
         horizon=args.learning_horizon,
@@ -113,7 +114,6 @@ if __name__ == "__main__":
         beta=args.beta,
         learning_rate=args.lr)
     
-    print(hand_goal_pos.mean())
     # plt.plot(save_value)
     # plt.show()
     # print("res :{}".format(res))

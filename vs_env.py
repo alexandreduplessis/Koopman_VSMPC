@@ -48,6 +48,7 @@ class VsEnv(gym.Env):
                 "ordonnee": initial[1],
                 "depth": initial[2]
             }
+        self.initial = self.state.copy()
         self.reward = loss_to_reward(self._distance_to_goal(self.state))
         self.historic = [self.reward]
         self.max_steps = max_steps
@@ -63,7 +64,7 @@ class VsEnv(gym.Env):
             {
                 "abscisse": spaces.Box(-1., 1., shape=(1,)),
                 "ordonnee": spaces.Box(-1., 1., shape=(1,)),
-                "depth": spaces.Box(0., .2, shape=(1,)),
+                "depth": spaces.Box(-0.2, 0.2, shape=(1,)),
             }
         )
         self.fig, self.ax = None, None
@@ -144,8 +145,7 @@ class VsEnv(gym.Env):
                 action = self.action_space.sample()
                 keep = self._is_valid_action(action)
             self.info["action"] = np.array([action["abscisse"], action["ordonnee"], action["depth"]])
-        # print("action:", [action["abscisse"], action["ordonnee"], action["depth"]])
-        assert self.action_space.contains(action), "%r (%s) invalid"%(action, type(action))
+            assert self.action_space.contains(action), "%r (%s) invalid"%(action, type(action))
         assert self.done is False, "Episode is done, because:\n {}".format(self.info)
         assert self.counter <= self.max_steps, "Episode is done, because:\n {}".format(self.info)
         
@@ -194,6 +194,14 @@ class VsEnv(gym.Env):
     def current_state_matrix(self):
         """ Return the current state as a matrix """
         return self.observation_to_matrix(self.state)
+    
+    def goal_matrix(self):
+        """ Return the goal as a matrix """
+        return self.observation_to_matrix(self.goal)
+    
+    def initial_matrix(self):
+        """ Return the initial state as a matrix """
+        return self.observation_to_matrix(self.initial)
     
     def render(self, display=None):
         """ Render the environment to the screen. """
