@@ -5,6 +5,8 @@ Project by Alexandre DUPLESSIS
 - torch
 - numpy
 - tensorboard
+- matplotlib
+- gym
 
 ## Usage
 **Warning:** The code was tested in a devoted conda environment. To make the code work, delete first line of ```main.py```
