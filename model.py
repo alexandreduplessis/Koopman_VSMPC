@@ -9,10 +9,10 @@ class Autoencoder_Dense(nn.Module):
         super().__init__()
         self.encoder = nn.Sequential(
             nn.Linear(dim_obs, dim_embed),
-            nn.ReLU(inplace=True),
+            # nn.ReLU(inplace=True),
             # nn.Dropout(p=0.2),
             nn.Linear(dim_embed, dim_embed),
-            nn.ReLU(inplace=True),
+            # nn.ReLU(inplace=True),
             # nn.Dropout(p=0.2),
             nn.Linear(dim_embed, dim_embed//2)
         )
@@ -20,10 +20,10 @@ class Autoencoder_Dense(nn.Module):
         self.decoder = nn.Sequential(
             # nn.BatchNorm1d(dim_embed),
             nn.Linear(dim_embed//2, dim_embed),
-            nn.ReLU(inplace=True),
+            # nn.ReLU(inplace=True),
             # nn.Dropout(p=0.2),
             nn.Linear(dim_embed, dim_embed),
-            nn.ReLU(inplace=True),
+            # nn.ReLU(inplace=True),
             # nn.Dropout(p=0.2),
             nn.Linear(dim_embed, dim_obs)
         )
@@ -56,34 +56,35 @@ class Autoencoder_Dense(nn.Module):
         return nb_param
     
     def __str__(self):
+        my_string = ""
         for name, parameter in self.named_parameters():
-            print(name, parameter.shape)
-        return None
+            my_string += "{name}, {shape}".format(name=name, shape=parameter.shape)
+        return my_string
 
-max_iter = 500
-data_size = 1000
-model = Autoencoder_Dense(1, 64)
-x = torch.rand(data_size, 1)
-x = x*10
-y = x*x
-def my_loss(x, y):
-    return torch.mean((y-x)**2)
+# max_iter = 500
+# data_size = 1000
+# model = Autoencoder_Dense(1, 64)
+# x = torch.rand(data_size, 1)
+# x = x*10
+# y = x*x
+# def my_loss(x, y):
+#     return torch.mean((y-x)**2)
 
-optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
-# scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.995)
-mse_loss = torch.nn.MSELoss()
-for i in range(max_iter):
-    for j in range(0, data_size, 10):
-        x_estimate_slice = model(x[j:j+10])
-        loss = mse_loss(x_estimate_slice, y[j:j+10])
-        tb2.add_scalar("Loss", loss, i*(data_size//10)+j)
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
-        # scheduler.step()
-    print(loss.item())
-    test = torch.tensor([[0.5]])
-    print("Estimate at ", i, ":", test.item(), "-->", model(test).item())
+# optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
+# # scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.995)
+# mse_loss = torch.nn.MSELoss()
+# for i in range(max_iter):
+#     for j in range(0, data_size, 10):
+#         x_estimate_slice = model(x[j:j+10])
+#         loss = mse_loss(x_estimate_slice, y[j:j+10])
+#         tb2.add_scalar("Loss", loss, i*(data_size//10)+j)
+#         optimizer.zero_grad()
+#         loss.backward()
+#         optimizer.step()
+#         # scheduler.step()
+#     print(loss.item())
+#     test = torch.tensor([[0.5]])
+#     print("Estimate at ", i, ":", test.item(), "-->", model(test).item())
     
 class Autoencoder_Dense_Old(nn.Module):
     def __init__(self, dim_obs, dim_embed):

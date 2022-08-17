@@ -105,6 +105,8 @@ From: ubuntu:latest
     #   apt_install nvidia-cuda-toolkit
     #   apt_install sox time gcc
 
+    apt_install ${PYTHON}-tk
+
 
     ###################
     # Python packages ##############################################################################

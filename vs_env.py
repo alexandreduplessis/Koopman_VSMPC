@@ -54,24 +54,24 @@ class VsEnv(gym.Env):
         self.done = False
         self.observation_space = spaces.Dict(
             {
-                "abscisse": spaces.Box(-10., 10., shape=(1,), dtype=np.float32),
-                "ordonnee": spaces.Box(-10., 10., shape=(1,), dtype=np.float32),
-                "depth": spaces.Box(0., 10., shape=(1,), dtype=np.float32),
+                "abscisse": spaces.Box(-10., 10., shape=(1,)),
+                "ordonnee": spaces.Box(-10., 10., shape=(1,)),
+                "depth": spaces.Box(0., 10., shape=(1,)),
             }
         )
         self.action_space = spaces.Dict(
             {
-                "abscisse": spaces.Box(-1., 1., shape=(1,), dtype=np.float32),
-                "ordonnee": spaces.Box(-1., 1., shape=(1,), dtype=np.float32),
-                "depth": spaces.Box(0., 1., shape=(1,), dtype=np.float32),
+                "abscisse": spaces.Box(-1., 1., shape=(1,)),
+                "ordonnee": spaces.Box(-1., 1., shape=(1,)),
+                "depth": spaces.Box(0., .2, shape=(1,)),
             }
         )
         self.fig, self.ax = None, None
 
     def _distance_to_goal(self, observation):
         """ Compute the distance to the goal """
-        matrix_goal = self._observation_to_matrix(self.goal)
-        matrix_state = self._observation_to_matrix(observation)
+        matrix_goal = self.observation_to_matrix(self.goal)
+        matrix_state = self.observation_to_matrix(observation)
         norm = np.linalg.norm(matrix_goal - matrix_state)
         return norm
     
@@ -99,7 +99,7 @@ class VsEnv(gym.Env):
         """ Convert a matrix ordonnee to an observation ordonnee """
         return matrix_ordonnee/self.width*10.
     
-    def _matrix_to_observation(self, matrix):
+    def matrix_to_observation(self, matrix):
         """
         Convert the matrix to an observation.
         input: matrix (np.array)
@@ -112,7 +112,7 @@ class VsEnv(gym.Env):
             "depth": self.size_to_depth(size)
         }
     
-    def _observation_to_matrix(self, observation):
+    def observation_to_matrix(self, observation):
         """
         Convert the observation to a matrix.
         input: observation (python dict)
@@ -125,9 +125,26 @@ class VsEnv(gym.Env):
                                     self.length, 
                                     self.width)
     
-
-    def step(self, action):
+    def _is_valid_action(self, action):
+        """ Check if the action is valid """
+        state_copy = self.state.copy()
+        next_state = {
+            "abscisse": self.state["abscisse"] + action["abscisse"],
+            "ordonnee": self.state["ordonnee"] + action["ordonnee"],
+            "depth": self.state["depth"] + action["depth"]
+        }
+        next_state_matrix = self.observation_to_matrix(next_state)
+        return np.nonzero(next_state_matrix)[0].size == 0
+    
+    def step(self, action=None):
         """ Perform one step of the environment's dynamics. """
+        if action is None:
+            keep = True
+            while keep:
+                action = self.action_space.sample()
+                keep = self._is_valid_action(action)
+            self.info["action"] = np.array([action["abscisse"], action["ordonnee"], action["depth"]])
+        # print("action:", [action["abscisse"], action["ordonnee"], action["depth"]])
         assert self.action_space.contains(action), "%r (%s) invalid"%(action, type(action))
         assert self.done is False, "Episode is done, because:\n {}".format(self.info)
         assert self.counter <= self.max_steps, "Episode is done, because:\n {}".format(self.info)
@@ -167,13 +184,16 @@ class VsEnv(gym.Env):
         self.fig, self.ax = plt.subplot_mosaic([['left', 'right'],['bottom', 'bottom']],
                               constrained_layout=True)
         plt.suptitle("VS Performance", fontsize=14)
-        matrix_goal = self._observation_to_matrix(self.goal)
+        matrix_goal = self.observation_to_matrix(self.goal)
         self.ax['right'].imshow(matrix_goal, cmap='gray')
         self.ax['right'].set_title("Goal")
         self.ax['left'].set_title("Current")
         self.ax['bottom'].set_title("Reward")
         return self.state
-        
+    
+    def current_state_matrix(self):
+        """ Return the current state as a matrix """
+        return self.observation_to_matrix(self.state)
     
     def render(self, display=None):
         """ Render the environment to the screen. """
@@ -185,11 +205,10 @@ class VsEnv(gym.Env):
             """.format(**self.state)
             return self.state
         else:
-            matrix = self._observation_to_matrix(self.state)
+            matrix = self.observation_to_matrix(self.state)
             self.ax['left'].imshow(matrix, cmap='gray')
             self.ax['bottom'].plot(self.historic)
-            # self.fig.canvas.flush_events()
             if self.done:
                 plt.show()
             else:
-                plt.pause(1.)
+                plt.pause(0.1)

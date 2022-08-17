@@ -2,16 +2,20 @@ import numpy as np
 import torch
 
 class Last_cumulated(): # m and T are switched here, to modify
-    def __init__(self, m, h, T, dimension):
+    def __init__(self, m, h, T, length, width=0):
         self.m = m
         self.h = h
         self.T = T
-        self.last_cumulated_list = torch.tensor([[0.]*dimension]*(m+h+1))
+        self.last_cumulated_list = torch.zeros((m+h+1, length, width))
+        print("shape: {}".format(self.last_cumulated_list.shape))
+        # self.last_cumulated_list = torch.tensor([[0.]*dimension]*(m+h+1))
     
     def append(self, x):
         copy = torch.clone(self.last_cumulated_list)
+        # self.last_cumulated_list[:-1] = copy[1:]
+        # self.last_cumulated_list[-1,:] = x.T
         self.last_cumulated_list[:-1] = copy[1:]
-        self.last_cumulated_list[-1,:] = x.T
+        self.last_cumulated_list[-1,:,:] = x
         return None
     
     def return_list(self):
@@ -63,31 +67,39 @@ def lr_function(epoch):
         # return 0.1
 
 
-def estimate(A, B, z, u, T, m, device):
-    z_estimate = A @ z.T + B @ u.T
+def estimate(A, B, z, u, T, m, device, method=None):
+    """ Estimate the T-m+1 last states of the modeled system in the latent space (for comparison with the true system)
+    method: None or 'from_first'
+        -> 'from_first' if we start from the first state and recursively estimate the others
+        -> None if each state is estimated from the previous one (prevents from diverging in case the learning is bad)
+    """
+    if method is None:
+        z_estimate = A @ z.T + B @ u.T
+    elif method == 'from_first':
+        z_estimate = torch.zeros((T-m, z.size()[1])).to(device)
+        # print(">>>>", z.size())
+        z = z[0,:].unsqueeze(-1)
+        # # print(z.size())
+        # print(B.size())
+        # print((torch.tensor(u[0]).unsqueeze(-1)).size())
+        # print("Az : ", ((A @ z.T).size()))
+        # print("Bu : ", (B @ torch.tensor(u[0]).unsqueeze(-1).unsqueeze(-1)).size())
+        # print("u : ", (torch.tensor(u[0]).unsqueeze(-1).unsqueeze(-1)).size())
+        # print(u[0].unsqueeze(-1).unsqueeze(-1))
+        print("z : ", z.T.size())
+        for t in range(T-m):
+            # print("z : ", z.size())
+            z = (A @ z) + B @ (torch.tensor(u[t]).unsqueeze(-1))
+            # print("z :", z.size())
+            # print(t)
+            # print("z_esti :", z_estimate.size())
+            z_estimate[t,:] = z.T
+        # print(">>>>>>>", z_estimate.size())
+    return z_estimate.T
     
     return z_estimate
 
-    # z_estimate = torch.zeros((T-m, z.size()[1])).to(device)
-    # # print(">>>>", z.size())
-    # z = z[0,:].unsqueeze(-1)
-    # # # print(z.size())
-    # # print(B.size())
-    # # print((torch.tensor(u[0]).unsqueeze(-1)).size())
-    # # print("Az : ", ((A @ z.T).size()))
-    # # print("Bu : ", (B @ torch.tensor(u[0]).unsqueeze(-1).unsqueeze(-1)).size())
-    # # print("u : ", (torch.tensor(u[0]).unsqueeze(-1).unsqueeze(-1)).size())
-    # # print(u[0].unsqueeze(-1).unsqueeze(-1))
-    # print("z : ", z.T.size())
-    # for t in range(T-m):
-    #     # print("z : ", z.size())
-    #     z = (A @ z) + B @ (torch.tensor(u[t]).unsqueeze(-1))
-    #     # print("z :", z.size())
-    #     # print(t)
-    #     # print("z_esti :", z_estimate.size())
-    #     z_estimate[t,:] = z.T
-    # # print(">>>>>>>", z_estimate.size())
-    # return z_estimate.T
+    
 
 
 
