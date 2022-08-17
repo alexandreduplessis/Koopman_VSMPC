@@ -5,8 +5,8 @@ import torch
 # random.seed(2000)
 
 def env_function(state, control):
-    return (state**(1/2)+control)**2
-    # return 0.22*state - 0.3*control
+    # return (state**(1/2)+control)**2
+    return 0.22*state - 0.3*control
 
 class SimulationEnv():
     """Basic simulation environment with user control and random control implemented"""

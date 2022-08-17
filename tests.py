@@ -1,57 +1,100 @@
 import torch
+from torch.autograd import Variable
+import numpy as np
+import torch.nn.functional as F
+import torchvision
+from torchvision import transforms
+import torch.optim as optim
+from torch import nn
+import matplotlib.pyplot as plt
+from torch import distributions
 
-class last_m_plus_one():
-    def __init__(self, m):
-        self.last_list = torch.tensor([0.]*(m+1))
-        self.m = m
-    
-    def append(self, x):
-        copy = torch.clone(self.last_list)
-        self.last_list[:-1] = copy[1:]
-        self.last_list[-1] = x
-    
-    def return_tensor(self):
-        return self.last_list
-    
-    def __str__(self):
-        return "{}".format(self.last_list)
+class Encoder(torch.nn.Module):
+    def __init__(self, D_in, H, latent_size):
+        super(Encoder, self).__init__()
+        self.linear1 = torch.nn.Linear(D_in, H)
+        self.linear2 = torch.nn.Linear(H, H)
+        self.enc_mu = torch.nn.Linear(H, latent_size)
+        self.enc_log_sigma = torch.nn.Linear(H, latent_size)
 
-# my_list = last_m_plus_one(4)
-# print(my_list)
-
-# for i in range(10):
-#     my_list.append(i)
-#     print(my_list)
+    def forward(self, x):
+        x = F.relu(self.linear1(x))
+        x = F.relu(self.linear2(x))
+        mu = self.enc_mu(x)
+        log_sigma = self.enc_log_sigma(x)
+        sigma = torch.exp(log_sigma)
+        return torch.distributions.Normal(loc=mu, scale=sigma)
 
 
+class Decoder(torch.nn.Module):
+    def __init__(self, D_in, H, D_out):
+        super(Decoder, self).__init__()
+        self.linear1 = torch.nn.Linear(D_in, H)
+        self.linear2 = torch.nn.Linear(H, D_out)
+        
 
-class last_cumulated():
-    def __init__(self, m, h):
-        self.m = m
-        self.h = h
-        self.last_cumulated_list = torch.tensor([0.]*(m+h+1))
-    
-    def append(self, x):
-        copy = torch.clone(self.last_cumulated_list)
-        self.last_cumulated_list[:-1] = copy[1:]
-        self.last_cumulated_list[-1] = x
-    
-    def before(self):
-        before_list = torch.stack([torch.cat([torch.tensor([self.last_cumulated_list[j+self.h-i]]) for i in range(self.h, -1, -1)], 0) for j in range(self.m)], 0)
-        return before_list
-    
-    def after(self):
-        after_list = torch.stack([torch.cat([torch.tensor([self.last_cumulated_list[j+self.h-i+1]]) for i in range(self.h, -1, -1)], 0) for j in range(self.m)], 0)
-        return after_list
-    
-    def __str__(self):
-        return "{}".format(self.last_cumulated_list)
+    def forward(self, x):
+        x = F.relu(self.linear1(x))
+        mu = torch.tanh(self.linear2(x))
+        return torch.distributions.Normal(mu, torch.ones_like(mu))
 
-# my_list = last_cumulated(3, 2)
+class VAE(torch.nn.Module):
+    def __init__(self, encoder, decoder):
+        super(VAE, self).__init__()
+        self.encoder = encoder
+        self.decoder = decoder
 
-# for i in range(10):
-#     my_list.append(i)
-#     print(my_list)
+    def forward(self, state):
+        q_z = self.encoder(state)
+        z = q_z.rsample()
+        return self.decoder(z), q_z
 
-# print("before : {}".format(my_list.before()))
-# print("after : {}".format(my_list.after()))
+
+transform = transforms.Compose(
+    [transforms.ToTensor(),
+     # Normalize the images to be -0.5, 0.5
+     transforms.Normalize(0.5, 1)]
+    )
+mnist = torchvision.datasets.MNIST('./', download=True, transform=transform)
+
+input_dim = 28 * 28
+batch_size = 128
+num_epochs = 100
+learning_rate = 0.001
+hidden_size = 512
+latent_size = 8
+
+if torch.cuda.is_available():
+    device = torch.device('cuda')
+else:
+    device = torch.device('cpu')
+
+dataloader = torch.utils.data.DataLoader(
+    mnist, batch_size=batch_size,
+    shuffle=True, 
+    pin_memory=torch.cuda.is_available())
+
+print('Number of samples: ', len(mnist))
+
+encoder = Encoder(input_dim, hidden_size, latent_size)
+decoder = Decoder(latent_size, hidden_size, input_dim)
+
+vae = VAE(encoder, decoder).to(device)
+
+optimizer = optim.Adam(vae.parameters(), lr=learning_rate)
+for epoch in range(num_epochs):
+    for data in dataloader:
+        inputs, _ = data
+        inputs = inputs.view(-1, input_dim).to(device)
+        optimizer.zero_grad()
+        p_x, q_z = vae(inputs)
+        log_likelihood = p_x.log_prob(inputs).sum(-1).mean()
+        kl = torch.distributions.kl_divergence(
+            q_z, 
+            torch.distributions.Normal(0, 1.)
+        ).sum(-1).mean()
+        loss = -(log_likelihood - kl)
+        loss.backward()
+        optimizer.step()
+        l = loss.item()
+    print(epoch, l, log_likelihood.item(), kl.item())

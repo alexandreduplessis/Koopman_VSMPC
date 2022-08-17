@@ -34,14 +34,14 @@ class Last_cumulated(): # m and T are switched here, to modify
 
 
 def lr_function(epoch):
-    if epoch < 500:
-        return 100.
-    elif epoch < 200:
-        return 50.
-    elif epoch < 400:
+    if epoch < 20:
         return 10.
+    elif epoch < 60:
+        return 5.
+    elif epoch < 100:
+        return 1.
     else:
-        return 1.    
+        return 0.1 
 
 # Works for 1D LSD
 # def lr_function(ep
