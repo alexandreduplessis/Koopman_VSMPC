@@ -1,5 +1,5 @@
 # Koopman Control of Dynamical systems for Visual Servoing
-Project by Alexandre DUPLESSIS
+_Project by Alexandre DUPLESSIS_
 
 ## Prerequisites
 - torch
