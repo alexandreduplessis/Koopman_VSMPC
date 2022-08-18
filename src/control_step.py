@@ -1,6 +1,6 @@
 import torch
-from environment import env_function
-from utils import estimate, find_AB, odc_loss, auto_loss, pred_loss
+from src.env.environment import env_function
+from src.utils import estimate, find_AB, odc_loss, auto_loss, pred_loss
 from tqdm import tqdm
 
 def control_step(current_state, dstar, N, d, u, n, c, m, T, rho, model, optimizer, tb, control_iter, device, alpha, beta, scheduler, secondary_horizon):

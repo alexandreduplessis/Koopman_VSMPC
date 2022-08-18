@@ -1,10 +1,10 @@
 #!/local_scratch/adupless/test_env/bin/python
-from control_step import control_step
-from environment import SimulationEnv
-from model import Autoencoder, Autoencoder_Dense
-from utils import Last_cumulated, lr_function
-from parser import Parser
-from vs_env import VsEnv
+from src.control_step import control_step
+from src.env.environment import SimulationEnv
+from src.model import Autoencoder, Autoencoder_Dense
+from src.utils import Last_cumulated, lr_function
+from src.parser import Parser
+from src.env.vs_env import VsEnv
 import random
 import numpy
 import gym
@@ -26,6 +26,7 @@ def control(env, initial_position, goal_position, nb_steps, nb_epochs_list, hori
     u = Last_cumulated(m=horizon-1, h=0, T=AB_horizon, length=control_dim)
     # d.append(initial_position)
     if random_control:
+        env.reset()
         state_dict = {}
         control_dict = {}
         d.append(torch.from_numpy(env.current_state_matrix()))
@@ -49,6 +50,7 @@ def control(env, initial_position, goal_position, nb_steps, nb_epochs_list, hori
         d.append(state_dict[0])
         first_state_environment = env.matrix_to_observation(state_dict[0].numpy())
         env.reset(x=first_state_environment['abscisse'], y=first_state_environment['ordonnee'], depth=first_state_environment['depth'])
+        env.render()
         state = env.current_state_matrix()
         for t in range(1, horizon + secondary_horizon):
             d.append(state_dict[t])
@@ -109,7 +111,6 @@ if __name__ == "__main__":
     # print("goal pos :", hand_goal([ 18494.5254, -13808.1035,   7870.1992],im)
     
     env = VsEnv(length=28, width=28, max_steps=args.learning_horizon + args.secondary_horizon + args.steps)
-    env.reset()
 
     res = control(
         env=env,

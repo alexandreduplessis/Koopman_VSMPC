@@ -3,7 +3,7 @@ import numpy as np
 from gym import error, spaces, utils
 from gym.utils import seeding
 from matplotlib import pyplot as plt
-from vs_utils import draw_centered_square, find_max_size_square_center_coordinates, loss_to_reward
+from src.env.vs_utils import draw_centered_square, find_max_size_square_center_coordinates, loss_to_reward
 
 
 class VsEnv(gym.Env):
