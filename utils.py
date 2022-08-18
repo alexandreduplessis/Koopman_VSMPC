@@ -177,10 +177,10 @@ def find_AB(Z1, Z2, U1, c, n, T, rho, max_iter, device, tensorboard, abscisse):
         new_diff = Z2 - A_estimate @ Z1 - B_estimate @ U1
         performance = new_diff.square().mean()
         tensorboard.add_scalar("Learning A,B", performance, i)
-        if performance <  10.:
+        if performance <  .01:
             break
-    print("Performance of learning of A and B :", performance)
-    print("Theoretical performance of learning of A and B :", theoretical_diff)
+    # print("Performance of learning of A and B :", performance)
+    # print("Theoretical performance of learning of A and B :", theoretical_diff)
     loss_fct = torch.nn.MSELoss()
     linearization_error = loss_fct(new_estimate[:n+c, ::] @ torch.linalg.pinv(new_estimate[:n+c, ::]), torch.eye(n+c).to(device))
     # print("B error :", linearization_error)

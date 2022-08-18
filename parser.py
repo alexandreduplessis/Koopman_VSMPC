@@ -10,7 +10,7 @@ class Parser(argparse.ArgumentParser):
         super(Parser, self).__init__(description='Read')
         
         # hyperparameters
-        self.add_argument('--epochs', '-e', type=int, default=100, help="number of epochs, constant over steps")
+        self.add_argument('--epochs', '-e', type=int, default=1000, help="number of epochs, constant over steps")
         self.add_argument('--steps', '-s', type=int, default=5, help="number of training data")
         self.add_argument('--alpha', '-a', type=float, default=1., help='weight of auto_loss in loss')
         self.add_argument('--beta', '-b', type=float, default=1., help='weight of pred_loss in loss')
@@ -32,6 +32,10 @@ class Parser(argparse.ArgumentParser):
         
         #random
         self.add_argument('--seed', '-seed', type=int, default=None, help='set seed or not')
+        self.add_argument('--random_control', '-rc', type=bool, default=False, help='use backup random control of update it')
+        
+        #display
+        self.add_argument('--show_model', '-sm', type=bool, default=False, help='show model or not')
 
     def parse(self, dirs=True):
         args = self.parse_args()

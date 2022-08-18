@@ -110,7 +110,7 @@ class VsEnv(gym.Env):
         return {
             "abscisse": self._matrix_abscisse_to_observation_abscisse(abscisse),
             "ordonnee": self._matrix_ordonnee_to_observation_ordonnee(ordonnee),
-            "depth": self.size_to_depth(size)
+            "depth": self._size_to_depth(size)
         }
     
     def observation_to_matrix(self, observation):
@@ -219,4 +219,4 @@ class VsEnv(gym.Env):
             if self.done:
                 plt.show()
             else:
-                plt.pause(0.1)
+                plt.pause(0.001)

@@ -21,35 +21,53 @@ else:
 device = torch.device(dev)
 
 
-def control(env, initial_position, goal_position, nb_steps, nb_epochs_list, horizon, AB_horizon, obs_dim, embed_dim, control_dim, rho, secondary_horizon, tensorboard, alpha, beta, learning_rate):
-    save_value = []
+def control(env, initial_position, goal_position, nb_steps, nb_epochs_list, horizon, AB_horizon, obs_dim, embed_dim, control_dim, rho, secondary_horizon, tensorboard, alpha, beta, learning_rate, random_control, show_model):
     d = Last_cumulated(m=horizon, h=secondary_horizon, T=AB_horizon, length=obs_dim, width = obs_dim)
-    # d.append(initial_position)
-    d.append(torch.from_numpy(env.current_state_matrix()))
     u = Last_cumulated(m=horizon-1, h=0, T=AB_horizon, length=control_dim)
+    # d.append(initial_position)
+    if random_control:
+        state_dict = {}
+        control_dict = {}
+        d.append(torch.from_numpy(env.current_state_matrix()))
+        state_dict[0] = torch.from_numpy(env.current_state_matrix())
     # env.env_initialize(initial_position)
-    for t in range(1, horizon + secondary_horizon):
-        # state, control = env.env_random_control(device)
-        state, reward, done, info = env.step()
-        env.render()
-        d.append(torch.from_numpy(env.observation_to_matrix(state)))
-        # print("Random state {} : {}".format(t, state))
-        u.append(torch.from_numpy(info['action']))
-        # print("Random control {} : {}".format(t, control))
-
+        for t in range(1, horizon + secondary_horizon):
+            # state, control = env.env_random_control(device)
+            state, reward, done, info = env.step()
+            env.render()
+            d.append(torch.from_numpy(env.observation_to_matrix(state)))
+            state_dict[t] = torch.from_numpy(env.observation_to_matrix(state))
+            # print("Random state {} : {}".format(t, state))
+            u.append(torch.from_numpy(info['action']))
+            control_dict[t] = torch.from_numpy(info['action'])
+            # print("Random control {} : {}".format(t, control))
+        torch.save(state_dict, './output/tensors_backup/state_dict.pt')
+        torch.save(control_dict, './output/tensors_backup/control_dict.pt')
+    else:
+        state_dict = torch.load('./output/tensors_backup/state_dict.pt')
+        control_dict = torch.load('./output/tensors_backup/control_dict.pt')
+        d.append(state_dict[0])
+        first_state_environment = env.matrix_to_observation(state_dict[0].numpy())
+        env.reset(x=first_state_environment['abscisse'], y=first_state_environment['ordonnee'], depth=first_state_environment['depth'])
+        state = env.current_state_matrix()
+        for t in range(1, horizon + secondary_horizon):
+            d.append(state_dict[t])
+            u.append(control_dict[t])
+            
     # print("First state :", state)
     model = Autoencoder(args.embed_dim)
     model.to(device)
-    print("====================")
-    print("Model:")
-    print("Number of learnable parameters:", model.number_parameters())
-    print(model)
-    print("====================")
+    if show_model:
+        print("====================")
+        print("Model:")
+        print("Number of learnable parameters:", model.number_parameters())
+        print(model)
+        print("====================")
     optimizer = torch.optim.Adam(
-        model.parameters(), lr=learning_rate, weight_decay=1e-4)
+        model.parameters(), lr=learning_rate)
     # scheduler = 0.
     # scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda=lr_function)
-    # scheduler = torch.optim.lr_scheduler.StepLR(
+    # scheduler = torch.optim.lr_scheduler.StepLR(env = VsEnv()
     #     optimizer, step_size=100, gamma=0.5)
     # scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'min')
     scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.995)
@@ -67,13 +85,12 @@ def control(env, initial_position, goal_position, nb_steps, nb_epochs_list, hori
             new_state, reward, done, info = env.step({'abscisse': control_env[0], 'ordonnee': control_env[1], 'depth': control_env[2]})
             env.render()
             print("Round {} : {}".format(i, reward))
-            d.append(new_state)
+            d.append(torch.from_numpy(env.current_state_matrix()))
             tb.add_scalar("Reward", reward, i)
-            save_value.append(new_state.mean())
             # print("with control ", control)
-            u.append(control)
+            u.append(control.unsqueeze(-1))
             current_state = new_state
-    return d, save_value
+    return d
 
 
 if __name__ == "__main__":
@@ -89,14 +106,12 @@ if __name__ == "__main__":
     # print("init pos :", hand_init_pos)
     # hand_goal_pos = torch.tensor([i*1.+17. for i in range(args.obs_dim)]).to(device)
     # hand_goal_pos = torch.tensor([2. for i in range(args.obs_dim)]).to(device)
-    # print("goal pos :", hand_goal_pos)
+    # print("goal pos :", hand_goal([ 18494.5254, -13808.1035,   7870.1992],im)
     
-    env = VsEnv(length=args.obs_dim, width=args.obs_dim, max_steps=args.learning_horizon + args.secondary_horizon + args.steps)
+    env = VsEnv(length=28, width=28, max_steps=args.learning_horizon + args.secondary_horizon + args.steps)
     env.reset()
-    
-    # env = SimulationEnv(args.obs_dim)
 
-    res, save_value = control(
+    res = control(
         env=env,
         initial_position=torch.from_numpy(env.initial_matrix()).to(device),
         goal_position=torch.from_numpy(env.goal_matrix()).to(device),
@@ -112,9 +127,8 @@ if __name__ == "__main__":
         tensorboard=tb,
         alpha=args.alpha,
         beta=args.beta,
-        learning_rate=args.lr)
-    
-    # plt.plot(save_value)
-    # plt.show()
-    # print("res :{}".format(res))
+        learning_rate=args.lr,
+        random_control=args.random_control,
+        show_model=args.show_model)
+    print("Done")
     tb.close()

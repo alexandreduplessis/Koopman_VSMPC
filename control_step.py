@@ -53,23 +53,23 @@ def control_step(current_state, dstar, N, d, u, n, c, m, T, rho, model, optimize
         #     temp_state = env_function(current_state, temp_control)
         #     tb.add_scalar("Estimation of new error of state", (temp_state - dstar), (control_iter-1)*(N+1) + epoch)
         
-        print("Epoch {} : Loss {} / Auto {} / Pred {} / Line {}".format(epoch, loss, my_auto_loss, my_pred_loss, linearization_error))
+        # print("Epoch {} : Loss {} / Auto {} / Pred {} / Line {}".format(epoch, loss, my_auto_loss, my_pred_loss, linearization_error))
         
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
         scheduler.step()
-        # scheduler.step(loss)
+    
+    torch.save(model.state_dict(), "./output/models/model_{}.pth".format(control_iter))
+    print("Epoch {} : Loss {} / Auto {} / Pred {} / Line {}".format(epoch, loss, my_auto_loss, my_pred_loss, linearization_error))
     
     with torch.no_grad():
         z_before = model.encoded(d_before)
         z_after = model.encoded(d_after)
     
         A, B, lin_err = find_AB(Z1=z_before, Z2=z_after, U1=u_list[:m], c=c, n=n, T=m, rho=rho, max_iter=400, device=device, tensorboard=tb, abscisse=(control_iter)*(N+1))
-        control = torch.linalg.pinv(B) @ (
+        control = (torch.linalg.pinv(B) @ (
             model.encoded(torch.cat([dstar]*(secondary_horizon + 1)).unsqueeze(0).to(device)).T\
-                - \
-            A @ model.encoded(d.before(T+1).to(device))[-1].T
-        )
+                - A @ model.encoded(d.before(T+1).to(device)).T)).T[-1]
     
     return control, model
