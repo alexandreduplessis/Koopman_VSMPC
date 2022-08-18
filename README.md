@@ -7,6 +7,8 @@ Project by Alexandre DUPLESSIS
 - tensorboard
 - matplotlib
 - gym
+- json
+- tqdm
 
 ## Usage
 **Warning:** The code was tested in a devoted conda environment. To make the code work, delete first line of ```main.py```
