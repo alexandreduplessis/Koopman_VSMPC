@@ -11,7 +11,7 @@ _Project by Alexandre DUPLESSIS_
 - tqdm
 
 ## Usage
-**Warning:** The code was tested in a devoted conda environment. To make the code work, delete first line of ```main.py```
+**Warning:** The code was tested in a devoted conda environment. To make the code work, adapt first line of ```main.py```
 
 To launch code, use ```python main.py```.
 
