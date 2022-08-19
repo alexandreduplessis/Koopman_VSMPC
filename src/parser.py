@@ -11,8 +11,8 @@ class Parser(argparse.ArgumentParser):
         super(Parser, self).__init__(description='Read')
         
         # hyperparameters
-        self.add_argument('--epochs', '-e', type=int, default=1000, help="number of epochs, constant over steps")
-        self.add_argument('--steps', '-s', type=int, default=5, help="number of training data")
+        self.add_argument('--epochs', '-e', type=int, default=200, help="number of epochs, constant over steps")
+        self.add_argument('--steps', '-s', type=int, default=1, help="number of training data")
         self.add_argument('--alpha', '-a', type=float, default=1., help='weight of auto_loss in loss')
         self.add_argument('--beta', '-b', type=float, default=1., help='weight of pred_loss in loss')
         self.add_argument('--regularization', '-rho', type=float, default=1e4, help='ADAM weight decay')
@@ -22,7 +22,7 @@ class Parser(argparse.ArgumentParser):
         self.add_argument('--AB_horizon', '-m', type=int, default=400, help='number of values used to compute A and B')
         self.add_argument('--lr', '-lr', type=float, default=1e-3, help='ADAM learning rate')
         self.add_argument('--weight_decay', '-wd', type=float, default=0., help='ADAM weight decay')
-        self.add_argument('--embed_dim', '-n', type=int, default=64, help='dimension of latent space')
+        self.add_argument('--embed_dim', '-n', type=int, default=128, help='dimension of latent space')
         self.add_argument('--secondary_horizon', '-sh', type=int, default=0, help='time horizon for dependancy')
         
         # environment
