@@ -11,7 +11,6 @@ The method is tested in a simulated VS environment (see comments) where the robo
 - tensorboard
 - matplotlib
 - gym
-- json
 - tqdm
 
 ## Usage
@@ -19,7 +18,7 @@ The method is tested in a simulated VS environment (see comments) where the robo
 
 To launch code, use ```python main.py```.
 
-To visualize the losses and``, use ```tensorboard --logdir=runs```.
+To visualize the losses and metrics, use ```tensorboard --logdir=runs```.
 
 ### Options
 Here are the different options available.
