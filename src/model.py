@@ -6,16 +6,18 @@ tb2 = SummaryWriter()
 
 
 class Autoencoder(nn.Module):
+    """ Autoencoder class: convolutional autoencoder """
     def __init__(self, embed_dim=8):
         super().__init__()
         self.encoder_cnn = nn.Sequential(
             nn.Conv2d(1, 8, 3, stride=2, padding=1),
             nn.ReLU(True),
+            nn.BatchNorm2d(8),
             nn.Conv2d(8, 16, 3, stride=2, padding=1),
-            nn.BatchNorm2d(16),
             nn.ReLU(True),
+            nn.BatchNorm2d(16),
             nn.Conv2d(16, 32, 3, stride=2, padding=0),
-            nn.ReLU(True)
+            nn.ReLU(True),
         )
         
         self.flatten = nn.Flatten(start_dim=1)
@@ -30,13 +32,13 @@ class Autoencoder(nn.Module):
             nn.Linear(embed_dim, 128),
             nn.ReLU(True),
             nn.Linear(128, 3 * 3 * 32),
-            nn.ReLU(True)
         )
 
         self.unflatten = nn.Unflatten(dim=1, 
         unflattened_size=(32, 3, 3))
 
         self.decoder_conv = nn.Sequential(
+            nn.ReLU(True),
             nn.ConvTranspose2d(32, 16, 3, 
             stride=2, output_padding=0),
             nn.BatchNorm2d(16),

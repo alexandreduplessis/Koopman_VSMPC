@@ -220,4 +220,6 @@ class VsEnv(gym.Env):
             if self.done:
                 plt.show()
             else:
-                plt.pause(0.001)
+                plt.show()
+                plt.savefig("./output/matplotlib_backup/{}.png".format(self.counter))
+                # plt.pause(0.001)

@@ -5,3 +5,4 @@ numpy
 matplotlib
 gym
 tqdm
+alive-progress

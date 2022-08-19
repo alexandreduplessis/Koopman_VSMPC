@@ -1,7 +1,9 @@
 import torch
+import logging
 from src.env.environment import env_function
 from src.utils import estimate, find_AB, odc_loss, auto_loss, pred_loss
 from tqdm import tqdm
+# from alive_progress import alive_bar
 
 def control_step(current_state, dstar, N, d, u, n, c, m, T, rho, model, optimizer, tb, control_iter, device, alpha, beta, scheduler, secondary_horizon):
     d_before = d.before()
@@ -14,7 +16,8 @@ def control_step(current_state, dstar, N, d, u, n, c, m, T, rho, model, optimize
     u_list = u_list.to(device)
     
     # model.reset_model()
-        
+    
+    
     for epoch in tqdm(range(1, N+1)):
         
         

@@ -6,6 +6,7 @@ import torch
 
 
 class Parser(argparse.ArgumentParser):
+    """ Parse arguments from command line """
     def __init__(self):
         super(Parser, self).__init__(description='Read')
         
@@ -21,7 +22,7 @@ class Parser(argparse.ArgumentParser):
         self.add_argument('--AB_horizon', '-m', type=int, default=400, help='number of values used to compute A and B')
         self.add_argument('--lr', '-lr', type=float, default=1e-3, help='ADAM learning rate')
         self.add_argument('--weight_decay', '-wd', type=float, default=0., help='ADAM weight decay')
-        self.add_argument('--embed_dim', '-n', type=int, default=8, help='dimension of latent space')
+        self.add_argument('--embed_dim', '-n', type=int, default=64, help='dimension of latent space')
         self.add_argument('--secondary_horizon', '-sh', type=int, default=0, help='time horizon for dependancy')
         
         # environment

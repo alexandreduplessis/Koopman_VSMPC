@@ -1,7 +1,7 @@
 import numpy as np
 import torch
 
-class Last_cumulated(): # m and T are switched here, to modify
+class Last_cumulated(): # m and T are switched here, to modify"""
     def __init__(self, m, h, T, length, width=1):
         self.m = m
         self.h = h
@@ -10,6 +10,7 @@ class Last_cumulated(): # m and T are switched here, to modify
         # self.last_cumulated_list = torch.tensor([[0.]*dimension]*(m+h+1))
     
     def append(self, x):
+        """ Shift all value except the last on the right, and replace first element with x """
         copy = torch.clone(self.last_cumulated_list)
         # self.last_cumulated_list[:-1] = copy[1:]
         # self.last_cumulated_list[-1,:] = x.T
@@ -18,25 +19,30 @@ class Last_cumulated(): # m and T are switched here, to modify
         return None
     
     def return_list(self):
+        """ Return the raw list """
         return self.last_cumulated_list
     
     def before(self, nb=None):
+        """ Return the last nb elements of the list, each concatenated with the h previous ones """
         if nb == None:
             nb = self.T
         before_list = torch.stack([torch.cat([torch.cat([self.last_cumulated_list[j+self.h-i,:]]) for i in range(self.h, -1, -1)], 0) for j in range(nb)], 0)
         return before_list
     
     def after(self, nb=None):
+        """ Return the last nb elements of the list but shifted of one on the right, each concatenated with the h previous ones """
         if nb == None:
             nb = self.T
         after_list = torch.stack([torch.cat([torch.cat([self.last_cumulated_list[j+self.h-i+1,:]]) for i in range(self.h, -1, -1)], 0) for j in range(nb)], 0)
         return after_list
     
     def __str__(self):
+        """ Return a string representation of the object """
         return "{}".format(self.last_cumulated_list)
 
 
 def lr_function(epoch):
+    """ Scheduler custom function"""
     if epoch < 20:
         return 10.
     elif epoch < 60:
@@ -189,12 +195,15 @@ def find_AB(Z1, Z2, U1, c, n, T, rho, max_iter, device, tensorboard, abscisse):
 
 
 def auto_loss(model, d):
+    """ Compute the auto-encoder loss of the model"""
     loss_fct = torch.nn.MSELoss()
     return loss_fct(d, model(d))
 
 def pred_loss(model, d, z_estimate, m):
+    """ Compute the prediction loss of the model"""
     loss_fct = torch.nn.MSELoss()
     return loss_fct(d[m+1:], model.decoded(torch.tensor(z_estimate))[:-1])
 
 def odc_loss(model, d, z_estimate, m):
+    """ Compute the total loss of the model"""
     return auto_loss(model, d, z_estimate, m) + pred_loss(model, d, z_estimate, m)
