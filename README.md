@@ -11,7 +11,7 @@ The method is tested in a simulated VS environment (see comments) where the robo
 - tensorboard
 - matplotlib
 - gym
-- tqdm
+- alive-progress
 
 ## Usage
 **Warning:** The code was tested in a devoted conda environment. To make the code work, adapt first line of ```main.py```
