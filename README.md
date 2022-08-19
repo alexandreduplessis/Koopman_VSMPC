@@ -1,5 +1,9 @@
-# Koopman Control of Dynamical systems for Visual Servoing
+# Deep Learning Koopman Control of Dynamical systems for Visual Servoing
 _Project by Alexandre DUPLESSIS_
+
+Online control of a robot for visual servoing, based on Koopman theory and an auto-encoder architecture.
+
+The method is tested in a simulated VS environment (see comments) where the robot's camera observes a 2D black square in a white background.
 
 ## Prerequisites
 - torch
@@ -15,7 +19,7 @@ _Project by Alexandre DUPLESSIS_
 
 To launch code, use ```python main.py```.
 
-To visualize the loss and metrics, use ```tensorboard --logdir=runs```.
+To visualize the losses and``, use ```tensorboard --logdir=runs```.
 
 ### Options
 Here are the different options available.
