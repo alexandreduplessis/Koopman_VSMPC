@@ -56,3 +56,10 @@ Here are the different options available.
 |Short |Long               |Default                  |Description                |
 |------|------------------|:-------------------------:|---------------------------|
 |``-seed``|``--seed``         |     None            | Set seed or not               |
+|``-rc``|``--random_control``         |     False            | Use backup random control of update it              |
+
+
+**Display parameters**
+|Short |Long               |Default                  |Description                |
+|------|------------------|:-------------------------:|---------------------------|
+|``-sm``|``--show_model``         |     False            | Show model or not             |     
