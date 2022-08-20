@@ -11,7 +11,7 @@ class Parser(argparse.ArgumentParser):
         super(Parser, self).__init__(description='Read')
         
         # hyperparameters
-        self.add_argument('--epochs', '-e', type=int, default=200, help="number of epochs, constant over steps")
+        self.add_argument('--epochs', '-e', type=int, default=500, help="number of epochs, constant over steps")
         self.add_argument('--steps', '-s', type=int, default=1, help="number of training data")
         self.add_argument('--alpha', '-a', type=float, default=1., help='weight of auto_loss in loss')
         self.add_argument('--beta', '-b', type=float, default=1., help='weight of pred_loss in loss')
