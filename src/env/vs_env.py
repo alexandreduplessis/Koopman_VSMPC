@@ -137,7 +137,7 @@ class VsEnv(gym.Env):
         next_state_matrix = self.observation_to_matrix(next_state)
         return np.nonzero(next_state_matrix)[0].size == 0
     
-    def step(self, action=None):
+    def step(self, action=None, noprint=None):
         """ Perform one step of the environment's dynamics. """
         if action is None:
             keep = True
@@ -155,7 +155,8 @@ class VsEnv(gym.Env):
             "depth": self.state["depth"] + action["depth"]
         }
         self.reward = loss_to_reward(self._distance_to_goal(self.state))
-        print("Step {i}: {distance}".format(i=self.counter, distance=self.reward))
+        if noprint is not None:
+            print("Step {i}: {distance}".format(i=self.counter, distance=self.reward))
         if self.counter == self.max_steps:
             self.done = True
             reason = "The environment has reached its maximum number of steps."

@@ -36,14 +36,15 @@ def control(env, initial_position, goal_position, nb_steps, nb_epochs_list, hori
             # state, control = env.env_random_control(device)
             state, reward, done, info = env.step()
             env.render()
-            d.append(torch.from_numpy(env.observation_to_matrix(state)))
+            d.append(torch.from_numpy(env.observation_to_matrix(state))) # poorly efficient, modify append method to take a list of states
             state_dict[t] = torch.from_numpy(env.observation_to_matrix(state))
             # print("Random state {} : {}".format(t, state))
             u.append(torch.from_numpy(info['action']))
             control_dict[t] = torch.from_numpy(info['action'])
-            # print("Random control {} : {}".format(t, control))
+            print("Random control {} : reward = {}".format(t, reward), end="\r")
         torch.save(state_dict, './output/tensors_backup/state_dict.pt')
         torch.save(control_dict, './output/tensors_backup/control_dict.pt')
+        print("Random control finished")
     else:
         state_dict = torch.load('./output/tensors_backup/state_dict.pt')
         control_dict = torch.load('./output/tensors_backup/control_dict.pt')
@@ -111,6 +112,7 @@ if __name__ == "__main__":
     # print("goal pos :", hand_goal([ 18494.5254, -13808.1035,   7870.1992],im)
     
     env = VsEnv(length=28, width=28, max_steps=args.learning_horizon + args.secondary_horizon + args.steps)
+    print("Simulation environment created")
 
     res = control(
         env=env,

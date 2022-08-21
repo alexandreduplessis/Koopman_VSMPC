@@ -24,6 +24,107 @@ class Autoencoder(nn.Module):
             nn.BatchNorm2d(64),
             nn.Conv2d(64, 128, 3, stride=1, padding=0),
             nn.ReLU(True),
+            nn.BatchNorm2d(128),
+            nn.Conv2d(128, 128, 3, stride=3, padding=3),
+            nn.ReLU(True),
+            nn.BatchNorm2d(128),
+        )
+        
+        self.flatten = nn.Flatten(start_dim=1)
+        
+        self.encoder_lin = nn.Sequential(
+            nn.Linear(8 * 8 * 128, 128),
+            nn.ReLU(True),
+            nn.Linear(128, embed_dim)
+        )
+        
+        self.decoder_lin = nn.Sequential(
+            nn.Linear(embed_dim, 128),
+            nn.ReLU(True),
+            nn.Linear(128, 8 * 8 * 128),
+        )
+
+        self.unflatten = nn.Unflatten(dim=1, 
+        unflattened_size=(128, 8, 8))
+
+        self.decoder_conv = nn.Sequential(
+            nn.ReLU(True),
+            nn.ConvTranspose2d(128, 128, 3, 
+            stride=3, padding=3, output_padding=0),
+            nn.BatchNorm2d(128),
+            nn.ReLU(True),
+            nn.ConvTranspose2d(128, 64, 3, 
+            stride=1, padding=0, output_padding=0),
+            nn.BatchNorm2d(64),
+            nn.ReLU(True),
+            nn.ConvTranspose2d(64, 32, 3, 
+            stride=1, padding=0, output_padding=0),
+            nn.BatchNorm2d(32),
+            nn.ReLU(True),
+            nn.ConvTranspose2d(32, 16, 3, 
+            stride=1, padding=0, output_padding=0),
+            nn.BatchNorm2d(16),
+            nn.ReLU(True),
+            nn.ConvTranspose2d(16, 8, 3, stride=1, 
+            padding=0, output_padding=0),
+            nn.BatchNorm2d(8),
+            nn.ReLU(True),
+            nn.ConvTranspose2d(8, 1, 3, stride=1, 
+            padding=0, output_padding=0)
+        )
+
+    def forward(self, x):
+        encoded = self.encoded(x).squeeze()
+        decoded = self.decoded(encoded)
+        return decoded
+    
+    def encoded(self, x):
+        x = x.float()
+        x = x.unsqueeze(1)
+        x = self.encoder_cnn(x)
+        x = self.flatten(x)
+        x = self.encoder_lin(x)
+        return x
+    
+    def decoded(self, x):
+        x = self.decoder_lin(x)
+        x = self.unflatten(x)
+        x = self.decoder_conv(x)
+        x = torch.sigmoid(x)
+        return x
+
+    def number_parameters(self):
+        nb_param = 0
+        for name, parameter in self.named_parameters():
+            nb_param += parameter.numel()
+        return nb_param
+    
+    def __str__(self):
+        my_string = ""
+        for name, parameter in self.named_parameters():
+            my_string += "{name}, {shape}\n".format(name=name, shape=parameter.shape)
+        return my_string[:-2]
+
+
+class Autoencoder_working(nn.Module):
+    """ Autoencoder class: convolutional autoencoder with no stride or padding"""
+    def __init__(self, embed_dim=8):
+        super().__init__()
+        self.encoder_cnn = nn.Sequential(
+            nn.Conv2d(1, 8, 3, stride=1, padding=0),
+            nn.ReLU(True),
+            nn.BatchNorm2d(8),
+            nn.Conv2d(8, 16, 3, stride=1, padding=0),
+            nn.ReLU(True),
+            nn.BatchNorm2d(16),
+            nn.Conv2d(16, 32, 3, stride=1, padding=0),
+            nn.ReLU(True),
+            nn.BatchNorm2d(32),
+            nn.Conv2d(32, 64, 3, stride=1, padding=0),
+            nn.ReLU(True),
+            nn.BatchNorm2d(64),
+            nn.Conv2d(64, 128, 3, stride=1, padding=0),
+            nn.ReLU(True),
         )
         
         self.flatten = nn.Flatten(start_dim=1)
@@ -96,6 +197,7 @@ class Autoencoder(nn.Module):
         for name, parameter in self.named_parameters():
             my_string += "{name}, {shape}\n".format(name=name, shape=parameter.shape)
         return my_string[:-2]
+
 
 class Autoencoder_normal(nn.Module):
     """ Autoencoder class: convolutional autoencoder """
