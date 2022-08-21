@@ -56,6 +56,7 @@ def control(env, initial_position, goal_position, nb_steps, nb_epochs_list, hori
         for t in range(1, horizon + secondary_horizon):
             d.append(state_dict[t])
             u.append(control_dict[t])
+        print("Random control historic loaded")
             
     # print("First state :", state)
     model = Autoencoder(args.embed_dim)

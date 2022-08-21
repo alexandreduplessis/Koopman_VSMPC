@@ -37,7 +37,7 @@ def control_step(current_state, dstar, N, d, u, n, c, m, T, rho, model, optimize
         list_pred_loss = d_before_T[m+1:] - model.decoded(torch.tensor(z_estimate.squeeze()))[:-1]
         # print("first : {}, last : {}".format(list_pred_loss[0], list_pred_loss[-1]))
         my_pred_loss = pred_loss(model, d_before_T, z_estimate.squeeze(), m)
-        loss = alpha*my_auto_loss# + beta*my_pred_loss# + linearization_error
+        loss = alpha*my_auto_loss + beta*my_pred_loss# + linearization_error
         
         tb.add_scalar("Auto_Loss", my_auto_loss, (control_iter-1)*N + epoch)
         tb.add_scalar("Pred_Loss", my_pred_loss, (control_iter-1)*N + epoch)
