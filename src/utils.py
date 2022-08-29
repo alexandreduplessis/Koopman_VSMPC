@@ -1,3 +1,5 @@
+from src.env.vs_env import VsEnv
+from src.env.vs_utils import find_max_size_square_center_coordinates
 import numpy as np
 import torch
 
@@ -183,7 +185,7 @@ def find_AB(Z1, Z2, U1, c, n, T, rho, max_iter, device, tensorboard, abscisse):
         new_diff = Z2 - A_estimate @ Z1 - B_estimate @ U1
         performance = new_diff.square().mean()
         tensorboard.add_scalar("Learning A,B", performance, i)
-        if performance <  .01:
+        if performance <  .001:
             break
     # print("Performance of learning of A and B :", performance)
     # print("Theoretical performance of learning of A and B :", theoretical_diff)
@@ -193,17 +195,25 @@ def find_AB(Z1, Z2, U1, c, n, T, rho, max_iter, device, tensorboard, abscisse):
     return A_estimate, B_estimate, linearization_error
 
 
+# def smart_loss(d1, d2):
+#     """ Compute smart loss between two VS camera inputs"""
+#     abs1, ord1, size1 = find_max_size_square_center_coordinates(d1.cpu().numpy())
+#     abs2, ord2, size2 = find_max_size_square_center_coordinates(d2.cpu().numpy())
+#     return (abs1 - abs2)**2 + (ord1 - ord2)**2 + (size1 - size2)**2
 
 def auto_loss(model, d):
     """ Compute the auto-encoder loss of the model"""
     loss_fct = torch.nn.MSELoss()
     return loss_fct(d, model(d))
+    # return smart_loss(d, model(d))
 
 def pred_loss(model, d, z_estimate, m):
     """ Compute the prediction loss of the model"""
     loss_fct = torch.nn.MSELoss()
     return loss_fct(d[m+1:], model.decoded(torch.tensor(z_estimate))[:-1])
+    # return smart_loss(d[m+1:], model.decoded(torch.tensor(z_estimate))[:-1])
 
 def odc_loss(model, d, z_estimate, m):
     """ Compute the total loss of the model"""
-    return auto_loss(model, d, z_estimate, m) + pred_loss(model, d, z_estimate, m)
+    # return auto_loss(model, d, z_estimate, m) + pred_loss(model, d, z_estimate, m)
+    return auto_loss(model, d) + pred_loss(model, d, z_estimate, m)
