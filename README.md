@@ -1,5 +1,5 @@
 # Deep Learning Koopman Control of Dynamical systems for Visual Servoing
-_Project by Alexandre DUPLESSIS_
+_Alexandre DUPLESSIS_
 
 Online control of a robot for visual servoing, based on Koopman theory and an auto-encoder architecture (inspired by [Online Learning and Control of Dynamical Systems from Sensory Input ](https://hal.inria.fr/hal-03405911v2))
 
